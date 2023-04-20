@@ -9,6 +9,8 @@ module CandyCheck
       attr_reader :receipt_data
       # @return [String] the optional shared secret
       attr_reader :secret
+      # @return [Array<String>] the optional specific products
+      attr_reader :product_ids
 
       # Constant for successful responses
       STATUS_OK = 0
@@ -17,19 +19,21 @@ module CandyCheck
       # @param endpoint_url [String] the verification URL to use
       # @param receipt_data [String] the raw data to be verified
       # @param secret [String] optional: shared secret
-      def initialize(endpoint_url, receipt_data, secret = nil)
+      # @param product_ids [Array<String>] optional: select specific products
+      def initialize(endpoint_url, receipt_data, secret = nil, product_ids = nil)
         @endpoint_url = endpoint_url
         @receipt_data = receipt_data
         @secret = secret
+        @product_ids = product_ids
       end
 
       # Performs the verification against the remote server
-      # @return [Receipt] if successful
+      # @return [GlobalReceipt] if successful
       # @return [VerificationFailure] otherwise
       def call!
         verify!
         if valid?
-          Receipt.new(@response["receipt"])
+          GlobalReceipt.new(@response, product_ids)
         else
           VerificationFailure.fetch(@response["status"])
         end

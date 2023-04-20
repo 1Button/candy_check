@@ -2,15 +2,23 @@ module CandyCheck
   module AppStore
     # Store multiple {Receipt}s in order to perform collective operation on them
     class ReceiptCollection
+
+      # @return [Hash] the raw response returned from the server
+      attr_reader :response
+
       # Multiple receipts as in verfication response
       # @return [Array<Receipt>]
       attr_reader :receipts
 
       # Initializes a new instance which bases on a JSON result
       # from Apple's verification server
-      # @param attributes [Array<Hash>] raw data from Apple's server
-      def initialize(attributes)
-        @receipts = attributes.map { |r| Receipt.new(r) }.sort do |a, b|
+      # @param response [Hash] raw response from Apple's server
+      # @param product_ids
+      def initialize(response, product_ids=nil)
+        @response = response
+        @receipts = @response["latest_receipt_info"].select do |info|
+          product_ids.nil? || product_ids.include?(info["product_id"])
+        end.map { |r| Receipt.new(r) }.sort do |a, b|
           a.purchase_date - b.purchase_date
         end
       end

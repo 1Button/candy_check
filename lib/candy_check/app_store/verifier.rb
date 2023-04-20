@@ -17,6 +17,9 @@ module CandyCheck
       # @return [Config] the current configuration
       attr_reader :config
 
+      # @return [Config] the full raw response from the server
+      attr_reader :config
+
       # Initializes a new verifier for the application which is bound
       # to a configuration
       # @param config [Config]
